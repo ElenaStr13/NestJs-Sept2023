@@ -32,7 +32,7 @@ module.exports = {
     "import/no-duplicates": "error",
     //"prettier/prettier": ["error", { "endOfLine": "auto" }],
     'prettier/prettier': 0,
-    'no-console': 'error',
+    'no-console': 'warn',
     'sort-imports': ['error', {
       'ignoreCase': true,
       'ignoreDeclarationSort': true,
