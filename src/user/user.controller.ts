@@ -1,7 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserReqDto } from './dto/req/create-user.req.dto';
-import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
+import { 
+  Body, 
+  Controller, 
+  Delete, 
+  Get, 
+  Param, 
+  Patch,  
+  Post
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -9,8 +14,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse
 } from "@nestjs/swagger";
+
+import { CreateUserReqDto } from './dto/req/create-user.req.dto';
+import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
 import { PrivateUserResDto } from "./dto/res/private-user.res.dto";
 import { PublicUserResDto } from "./dto/res/public-user.res.dto";
+import { UserService } from './user.service';
 
 @ApiBearerAuth()
 @ApiTags('Users')
