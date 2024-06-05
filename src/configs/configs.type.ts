@@ -3,6 +3,7 @@ export type Config = {
   database: DatabaseConfig;
   redis: RedisConfig;
   sentry: SentryConfig;
+  jwt: JWTConfig;
 };
 
 export type AppConfig = {
@@ -28,4 +29,11 @@ export type SentryConfig = {
   dsn: string;
   debug: boolean;
   env: string;
+};
+
+export type JWTConfig = {
+  accessSecret: string;
+  accessExpiresIn: number;
+  refreshSecret: string;
+  refreshExpiresIn: number;
 };
