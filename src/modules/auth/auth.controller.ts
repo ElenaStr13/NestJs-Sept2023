@@ -1,10 +1,14 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 
+import { CurrentUser } from "./decirators/current-user.decotator";
 import { SkipAuth } from "./decirators/skip-auth.decorator";
 import { SignInReqDto } from "./dto/req/sign-in.req.dto";
 import { SignUpReqDto } from "./dto/req/sign-up.req.dto";
 import { AuthResDto } from "./dto/res/auth.res.dto";
+import { TokenPairResDto } from "./dto/res/token-pair.res.dto";
+import { JwtRefreshGuard } from "./guards/jwt-refresh.guard";
+import { IUserData } from "./interfaces/user-data.interface";
 import { AuthService } from './services/auth.service';
 
 @ApiTags('Auth')
@@ -20,5 +24,23 @@ export class AuthController {
   @Post('sign-in')
   public async signIn(@Body() dto: SignInReqDto): Promise<AuthResDto> {
     return await this.authService.singIn(dto);
+  }
+
+  @SkipAuth()
+  @ApiBearerAuth()
+  @UseGuards(JwtRefreshGuard)
+  @ApiOperation({ summary: 'Refresh token pair' })
+  @Post('refresh')
+  public async refresh(
+    @CurrentUser() userData: IUserData,
+  ): Promise<TokenPairResDto> {
+    return await this.authService.refresh(userData);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Sign out' })
+  @Post('sign-out')
+  public async signOut(@CurrentUser() userData: IUserData): Promise<void> {
+    return await this.authService.signOut(userData);
   }
 }

@@ -7,6 +7,8 @@ import { UserService } from "../../user/services/user.service";
 import { SignInReqDto } from "../dto/req/sign-in.req.dto";
 import { SignUpReqDto } from '../dto/req/sign-up.req.dto';
 import { AuthResDto } from "../dto/res/auth.res.dto";
+import { TokenPairResDto } from "../dto/res/token-pair.res.dto";
+import { IUserData } from "../interfaces/user-data.interface";
 import { AuthCacheService } from './auth-cache.service';
 import { AuthMapper } from "./auth-mapper";
 import { TokenService } from './token.service';
@@ -83,5 +85,45 @@ export class AuthService {
     ]);
     const userEntity = await this.userRepository.findOneBy({ id: user.id });
     return await AuthMapper.toResponseDTO(userEntity, pair);
+  }
+
+  public async refresh(userData: IUserData): Promise<TokenPairResDto> {
+    await Promise.all([
+      this.refreshTokenRepository.delete({
+        deviceId: userData.deviceId,
+        user_id: userData.userId,
+      }),
+      this.authCacheService.deleteToken(userData.userId, userData.deviceId),
+    ]);
+    const pair = await this.tokenService.generateAuthTokens({
+      userId: userData.userId,
+      deviceId: userData.deviceId,
+    });
+
+    await Promise.all([
+      this.refreshTokenRepository.save(
+        this.refreshTokenRepository.create({
+          user_id: userData.userId,
+          refreshToken: pair.refreshToken,
+          deviceId: userData.deviceId,
+        }),
+      ),
+      this.authCacheService.saveToken(
+        pair.accessToken,
+        userData.userId,
+        userData.deviceId,
+      ),
+    ]);
+    return AuthMapper.toResponseTokensDTO(pair);
+  }
+
+  public async signOut(userData: IUserData): Promise<void> {
+    await Promise.all([
+      this.refreshTokenRepository.delete({
+        deviceId: userData.deviceId,
+        user_id: userData.userId,
+      }),
+      this.authCacheService.deleteToken(userData.userId, userData.deviceId),
+    ]);
   }
 }

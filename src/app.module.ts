@@ -4,6 +4,7 @@ import { APP_FILTER } from '@nestjs/core';
 
 import { GlobalExceptionFilter } from "./common/http/global-exception.filter";
 import configuration from './configs/configs';
+import { ArticleModule } from "./modules/article/article.module";
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from "./modules/logger/logger.module";
 import { RedisModule } from "./modules/redis/redis.module";
@@ -22,8 +23,9 @@ import { PostgresModule } from "./postgres/postgres.module";
     RedisModule,
     LoggerModule,
     PostgresModule,
+    AuthModule,
     UserModule,
-    AuthModule
+    ArticleModule
   ],
   controllers: [],
   providers: [

@@ -1,6 +1,7 @@
 import { UserEntity } from '../../../database/entities/user.entity';
 import { UserMapper } from '../../user/services/user.mapper';
 import { AuthResDto } from '../dto/res/auth.res.dto';
+import { TokenPairResDto } from "../dto/res/token-pair.res.dto";
 import { ITokenPair } from '../interfaces/token-pair.interface';
 import { IUserData } from "../interfaces/user-data.interface";
 
@@ -10,11 +11,15 @@ export class AuthMapper {
     tokenPair: ITokenPair,
   ): Promise<AuthResDto> {
     return {
-      tokens: {
-        accessToken: tokenPair.accessToken,
-        refreshToken: tokenPair.refreshToken,
-      },
+      tokens: this.toResponseTokensDTO(tokenPair),
       user: UserMapper.toResponseDTO(user),
+    };
+  }
+
+  public static toResponseTokensDTO(tokenPair: ITokenPair): TokenPairResDto {
+    return {
+      accessToken: tokenPair.accessToken,
+      refreshToken: tokenPair.refreshToken,
     };
   }
 
