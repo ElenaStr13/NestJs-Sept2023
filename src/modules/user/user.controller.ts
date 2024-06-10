@@ -15,8 +15,8 @@ import {
   ApiUnauthorizedResponse
 } from "@nestjs/swagger";
 
-import { CurrentUser } from "../auth/decirators/current-user.decotator";
-import { SkipAuth } from "../auth/decirators/skip-auth.decorator";
+import { CurrentUser } from "../auth/decorators/current-user.decotator";
+import { SkipAuth } from "../auth/decorators/skip-auth.decorator";
 import { IUserData } from "../auth/interfaces/user-data.interface";
 import { UpdateUserReqDto } from './dto/req/update-user.req.dto';
 import { UserResDto } from "./dto/res/user.res.dto";

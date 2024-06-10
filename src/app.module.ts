@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from "./modules/logger/logger.module";
 import { RedisModule } from "./modules/redis/redis.module";
 import { RepositoryModule } from "./modules/repository/repository.module";
+import { TagModule } from "./modules/tag/tag.module";
 import { UserModule } from './modules/user/user.module';
 import { PostgresModule } from "./postgres/postgres.module";
 
@@ -25,7 +26,8 @@ import { PostgresModule } from "./postgres/postgres.module";
     PostgresModule,
     AuthModule,
     UserModule,
-    ArticleModule
+    ArticleModule,
+    TagModule
   ],
   controllers: [],
   providers: [
