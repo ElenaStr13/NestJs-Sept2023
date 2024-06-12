@@ -6,6 +6,7 @@ import { GlobalExceptionFilter } from "./common/http/global-exception.filter";
 import configuration from './configs/configs';
 import { ArticleModule } from "./modules/article/article.module";
 import { AuthModule } from './modules/auth/auth.module';
+import { FileStorageModule } from "./modules/file-storage/file-storage.module";
 import { LoggerModule } from "./modules/logger/logger.module";
 import { RedisModule } from "./modules/redis/redis.module";
 import { RepositoryModule } from "./modules/repository/repository.module";
@@ -27,7 +28,8 @@ import { PostgresModule } from "./postgres/postgres.module";
     AuthModule,
     UserModule,
     ArticleModule,
-    TagModule
+    TagModule,
+    FileStorageModule
   ],
   controllers: [],
   providers: [

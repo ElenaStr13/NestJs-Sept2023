@@ -3,7 +3,8 @@ export type Config = {
   database: DatabaseConfig;
   redis: RedisConfig;
   sentry: SentryConfig;
-  jwt: JWTConfig;
+  jwt: JWTConfig
+  aws: AWSConfig;
 };
 
 export type AppConfig = {
@@ -36,4 +37,12 @@ export type JWTConfig = {
   accessExpiresIn: number;
   refreshSecret: string;
   refreshExpiresIn: number;
+};
+
+export type AWSConfig = {
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucketName: string;
+  endpoint: string;
 };
