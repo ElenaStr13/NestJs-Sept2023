@@ -1,11 +1,23 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from "@nestjs/common";
 import {
-  ApiBearerAuth,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  Query
+} from "@nestjs/common";
+import {
+  ApiBearerAuth, ApiConflictResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+  ApiUnauthorizedResponse
+} from "@nestjs/swagger";
 
 import { CurrentUser } from "../auth/decorators/current-user.decotator";
 import { IUserData } from '../auth/interfaces/user-data.interface';
@@ -50,7 +62,7 @@ export class ArticleController {
   @Get(':articleId')
   public async getById(
     @CurrentUser() userData: IUserData,
-    @Param('articleId') articleId: string,
+    @Param('articleId', ParseUUIDPipe) articleId: string,
   ): Promise<ArticleResDto> {
     return await this.articleService.getById(userData, articleId);
   }
@@ -61,7 +73,7 @@ export class ArticleController {
   @Put(':articleId')
   public async updateById(
     @CurrentUser() userData: IUserData,
-    @Param('articleId') articleId: string,
+    @Param('articleId', ParseUUIDPipe) articleId: string,
     @Body() dto: UpdateArticleReqDto,
   ): Promise<ArticleResDto> {
     return await this.articleService.updateById(userData, articleId, dto);
@@ -77,5 +89,29 @@ export class ArticleController {
     @Param('articleId') articleId: string,
   ): Promise<void> {
     await this.articleService.deleteById(userData, articleId);
+  }
+
+  @ApiConflictResponse({ description: 'Conflict' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post(':articleId/like')
+  public async like(
+    @CurrentUser() userData: IUserData,
+    @Param('articleId', ParseUUIDPipe) articleId: string,
+  ): Promise<void> {
+    await this.articleService.like(userData, articleId);
+  }
+
+  @ApiConflictResponse({ description: 'Conflict' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':articleId/like')
+  public async unlike(
+    @CurrentUser() userData: IUserData,
+    @Param('articleId', ParseUUIDPipe) articleId: string,
+  ): Promise<void> {
+    await this.articleService.unlike(userData, articleId);
   }
 }

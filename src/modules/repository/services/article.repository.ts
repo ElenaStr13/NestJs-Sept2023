@@ -15,6 +15,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     query: ArticleListReqDto,
   ): Promise<[ArticleEntity[], number]> {
     const qb = this.createQueryBuilder('article');
+    qb.leftJoinAndSelect('article.likes', 'like', 'like.user_id = :myId');
     qb.leftJoinAndSelect('article.tags', 'tag');
     qb.leftJoinAndSelect('article.user', 'user');
     qb.leftJoinAndSelect(
@@ -49,6 +50,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     articleId: string,
   ): Promise<ArticleEntity> {
     const qb = this.createQueryBuilder('article');
+    qb.leftJoinAndSelect('article.likes', 'like', 'like.user_id = :myId');
     qb.leftJoinAndSelect('article.tags', 'tag');
     qb.leftJoinAndSelect('article.user', 'user');
     qb.leftJoinAndSelect(

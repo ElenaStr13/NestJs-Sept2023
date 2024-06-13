@@ -5,6 +5,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { QueryFailedError } from 'typeorm';
 
 import { LoggerService } from '../../modules/logger/logger.service';
 
@@ -23,6 +24,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       messages = (exception as HttpException).message;
       status = exception.getStatus();
+    } else if (exception instanceof QueryFailedError) {
+      messages = exception.message;
+      status = 500;
     } else {
       status = 500;
       messages = 'Internal server error';

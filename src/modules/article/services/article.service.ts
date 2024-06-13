@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { In } from 'typeorm';
 
 import { ArticleEntity } from "../../../database/entities/article.entity";
@@ -6,6 +6,7 @@ import { TagEntity } from '../../../database/entities/tag.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
 import { LoggerService } from '../../logger/logger.service';
 import { ArticleRepository } from '../../repository/services/article.repository';
+import { LikeRepository } from "../../repository/services/like.repository";
 import { TagRepository } from '../../repository/services/tag.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { ArticleListReqDto } from "../dto/req/article-list.req.dto";
@@ -21,6 +22,7 @@ export class ArticleService {
   constructor(
     private readonly logger: LoggerService,
     private readonly userRepository: UserRepository,
+    private readonly likeRepository: LikeRepository,
     private readonly articleRepository: ArticleRepository,
     private readonly tagRepository: TagRepository,
   ) {}
@@ -118,6 +120,45 @@ export class ArticleService {
     }
     if (article.user_id !== userId) {
       throw new ForbiddenException();
+    }
+    return article;
+  }
+
+  public async like(userData: IUserData, articleId: string): Promise<void> {
+    await this.findArticleByIdOrThrow(articleId);
+    const like = await this.likeRepository.findOneBy({
+      article_id: articleId,
+      user_id: userData.userId,
+    });
+    if (like) {
+      throw new ConflictException('Already liked');
+    }
+    await this.likeRepository.save(
+      this.likeRepository.create({
+        article_id: articleId,
+        user_id: userData.userId,
+      }),
+    );
+  }
+
+  public async unlike(userData: IUserData, articleId: string): Promise<void> {
+    await this.findArticleByIdOrThrow(articleId);
+    const like = await this.likeRepository.findOneBy({
+      article_id: articleId,
+      user_id: userData.userId,
+    });
+    if (!like) {
+      throw new ConflictException('Not liked yet');
+    }
+    await this.likeRepository.remove(like);
+  }
+
+  private async findArticleByIdOrThrow(
+    articleId: string,
+  ): Promise<ArticleEntity> {
+    const article = await this.articleRepository.findOneBy({ id: articleId });
+    if (!article) {
+      throw new NotFoundException('Article not found');
     }
     return article;
   }
