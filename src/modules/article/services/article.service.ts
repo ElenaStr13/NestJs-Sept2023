@@ -1,5 +1,6 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { In } from 'typeorm';
+import { InjectEntityManager } from '@nestjs/typeorm';
+import { EntityManager, In } from 'typeorm';
 
 import { ArticleEntity } from "../../../database/entities/article.entity";
 import { TagEntity } from '../../../database/entities/tag.entity';
@@ -25,6 +26,8 @@ export class ArticleService {
     private readonly likeRepository: LikeRepository,
     private readonly articleRepository: ArticleRepository,
     private readonly tagRepository: TagRepository,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
   ) {}
 
   public async getList(
@@ -42,26 +45,33 @@ export class ArticleService {
     userData: IUserData,
     dto: CreateArticleReqDto,
   ): Promise<ArticleResDto> {
-    const tags = await this.createTags(dto.tags);
-    const article = await this.articleRepository.save(
-      this.articleRepository.create({
-        ...dto,
-        user_id: userData.userId,
-        tags,
-      }),
-    );
-    return ArticleMapper.toResponseDTO(article);
+    return await this.entityManager.transaction('SERIALIZABLE', async (em) => {
+      const articleRepository = em.getRepository(ArticleEntity);
+      const tags = await this.createTags(dto.tags, em);
+      const article = await articleRepository.save(
+        this.articleRepository.create({
+          ...dto,
+          user_id: userData.userId,
+          tags,
+        }),
+      );
+      return ArticleMapper.toResponseDTO(article);
+    });
   }
 
-  private async createTags(tags: string[]): Promise<TagEntity[]> {
+  private async createTags(
+    tags: string[],
+    em: EntityManager,
+  ): Promise<TagEntity[]> {
     if (!tags || tags.length === 0) return [];
 
-    const entities = await this.tagRepository.findBy({ name: In(tags) });
+    const tagRepository = em.getRepository(TagEntity);
+    const entities = await tagRepository.findBy({ name: In(tags) });
     const existingTags = new Set(entities.map((tag) => tag.name));
     const newTags = tags.filter((tag) => !existingTags.has(tag));
 
-    const newEntities = await this.tagRepository.save(
-      newTags.map((name) => this.tagRepository.create({ name })),
+    const newEntities = await tagRepository.save(
+      newTags.map((name) => tagRepository.create({ name })),
     );
     return [...entities, ...newEntities];
   }
